@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bitta Sahifa CRUD</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 60%;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #333;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .buttons button {
+            padding: 10px 20px;
+            margin-right: 10px;
+            background-color: #bd1f1f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .buttons button:hover {
+            background-color: #9224a0;
+        }
+
+        input[type="text"], input[type="tel"] {
+            padding: 5px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ma'lumotlar</h1>
+
+    <div id="form-section">
+        <div class="form-group">
+            <label for="ism">Ism:</label>
+            <input type="text" id="ismInput" />
+        </div>
+        <div class="form-group">
+            <label for="familiya">Familiya:</label>
+            <input type="text" id="familiyaInput" />
+        </div>
+        <div class="form-group">
+            <label for="telefon">Telefon:</label>
+            <input type="tel" id="telefonInput" />
+        </div>
+        <div class="buttons">
+            <button onclick="qoshish()">Qo‘shish</button>
+            <button onclick="korish()">Ko‘rish</button>
+            <button onclick="yangilash()">Yangilash</button>
+            <button onclick="ochirish()">O‘chirish</button>
+        </div>
+    </div>
+
+    <table id="malumotlar">
+        <thead>
+            <tr>
+                <th>Ism</th>
+                <th>Familiya</th>
+                <th>Telefon</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <!-- Ma'lumotlar shu yerga tushadi -->
+        </tbody>
+    </table>
+
+    <script>
+  function qoshish() {
+    const ism = document.getElementById('ismInput').value;
+    const familiya = document.getElementById('familiyaInput').value;
+    const telefon = document.getElementById('telefonInput').value;
+
+    if (!ism || !familiya || !telefon) {
+        alert("Iltimos, barcha maydonlarni to'ldiring.");
+        return;
+    }
+
+    const yangiFoydalanuvchi = { ism, familiya, telefon };
+
+    // localStorage'dan mavjud foydalanuvchilarni olish (agar mavjud bo‘lsa)
+    let foydalanuvchilar = JSON.parse(localStorage.getItem('foydalanuvchilar')) || [];
+
+    // Yangi foydalanuvchini massivga qo‘shish
+    foydalanuvchilar.push(yangiFoydalanuvchi);
+
+    // Yangilangan massivni localStorage'ga saqlash
+    localStorage.setItem('foydalanuvchilar', JSON.stringify(foydalanuvchilar));
+
+    alert("Ma'lumot qo‘shildi!");
+    korish();
+}
+
+     function korish() {
+    const foydalanuvchilar = JSON.parse(localStorage.getItem('foydalanuvchilar')) || [];
+    const tbody = document.getElementById('tbody');
+    tbody.innerHTML = "";
+
+    if (foydalanuvchilar.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4">Ma'lumot topilmadi</td></tr>`;
+        return;
+    }
+
+    foydalanuvchilar.forEach((user, index) => {
+        const row = `<tr>
+            <td>${user.ism}</td>
+            <td>${user.familiya}</td>
+            <td>${user.telefon}</td>
+            <td>
+                <button onclick="yangilash(${index})">✏️</button>
+                <button onclick="ochirish(${index})">🗑️</button>
+            </td>
+        </tr>`;
+        tbody.innerHTML += row;
+    });
+}
+
+function yangilash(index) {
+    let foydalanuvchilar = JSON.parse(localStorage.getItem('foydalanuvchilar')) || [];
+
+    const user = foydalanuvchilar[index];
+    if (!user) {
+        alert("Foydalanuvchi topilmadi.");
+        return;
+    }
+
+    const ism = prompt("Yangi ism:", user.ism) || user.ism;
+    const familiya = prompt("Yangi familiya:", user.familiya) || user.familiya;
+    const telefon = prompt("Yangi telefon:", user.telefon) || user.telefon;
+
+    foydalanuvchilar[index] = { ism, familiya, telefon };
+    localStorage.setItem('foydalanuvchilar', JSON.stringify(foydalanuvchilar));
+    alert("Ma'lumot yangilandi!");
+    korish();
+}
+
+function ochirish(index) {
+    let foydalanuvchilar = JSON.parse(localStorage.getItem('foydalanuvchilar')) || [];
+
+    if (confirm("Ma'lumotni o‘chirishga ishonchingiz komilmi?")) {
+        foydalanuvchilar.splice(index, 1); // tanlangan foydalanuvchini o‘chirish
+        localStorage.setItem('foydalanuvchilar', JSON.stringify(foydalanuvchilar));
+        korish();
+        alert("Ma'lumot o‘chirildi.");
+    }
+}
+
+
+        // Sahifa yuklanganda ma'lumotni ko‘rsatish
+        window.onload = korish;
+    </script>
+</body>
+</html>
